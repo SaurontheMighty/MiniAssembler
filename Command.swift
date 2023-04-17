@@ -11,13 +11,13 @@ struct Command: View {
     @State var command: CommandType
     @State private var help: Bool = false
     
-    let send: (Bool) -> Void
+    let send: (CommandType) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 0) {
                 Button {
-                    send(true)
+                    send(command)
                 } label: {
                     HStack(spacing: 0) {
                         Text(command.name)

@@ -2,20 +2,26 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var assemblerState: AssemblerState = AssemblerState()
-    
+    @State var usedRegisters: [Int] = [0]
+        
     var body: some View {
         ScrollView {
-            Card(content: Code(state: assemblerState), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 200)
+            Card(content: Code(state: assemblerState, used: { used in
+                print(used)
+                usedRegisters = used
+            }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 200)
             
-            HStack {
+            HStack(spacing: 3) {
                 Command(command: add(), send: { tapped in
-                    assemblerState.code.append(add())
+                    assemblerState.code.append(tapped)
+                })
+                Command(command: li(), send: { tapped in
+                    assemblerState.code.append(tapped)
                 })
             }
             .padding(.top, 5)
             
-            Card(content: Test(), title: "Standard Out", minHeight: 0)
-            Card(content: Test(), title: "Registers", minHeight: 0)
+            Card(content: Registers(state: assemblerState, usedRegisters: $usedRegisters), title: "Registers", minHeight: 0)
             Card(content: Test(), title: "Help", minHeight: 50)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

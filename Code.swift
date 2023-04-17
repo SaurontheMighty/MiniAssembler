@@ -10,40 +10,53 @@ import Combine
 
 struct Code: View {
     @ObservedObject var state: AssemblerState
+    let used: ([Int]) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(state.code.enumerated()), id: \.offset) { (line, command) in
-                HStack(spacing: 0) {
-                    Text(command.name)
-                        .bold()
-                        .foregroundColor(.deepPurple)
-                    if command.args == [] {
-                        EmptyCommand(state: state, line: line, help: command.help)
+            ForEach(0..<state.code.count, id: \.self) { line in
+                let command = state.code[line]
+                if(!state.deletedLines.contains(line)) {
+                    HStack(spacing: 0) {
+                        Text(command.name)
+                            .bold()
+                            .foregroundColor(.deepPurple)
+                        if command.args == [] {
+                            EmptyCommand(state: state, line: line, help: command.help)
+                        }
+                        else {
+                            Line(args: command.args)
+                        }
+                        Spacer()
+                        Button {
+                            state.code[line].args = []
+                        } label: {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(.black)
+                                
+                        }
+                        .padding(.trailing, 5)
+                        Button {
+                            state.deletedLines.insert(line)
+                        } label: {
+                            Image(systemName: "trash.circle.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(.red)
+                                
+                        }
+                        .padding(.trailing, 5)
                     }
-                    else {
-                        Line(args: command.args)
-                    }
-                    Spacer()
-                    Button {
-                        state.code.remove(at: line)
-                    } label: {
-                        Image(systemName: "trash.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.red)
-                            
-                    }
-                    .padding(.trailing, 5)
                 }
             }
             Spacer()
             HStack {
-                Text(state.error)
+                Text(state.assemblyError)
                     .foregroundColor(.red)
                     .bold()
                 Spacer()
                 Button {
-                    state.assemble()
+                    used(state.assemble())
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
                         Text("Assemble")
@@ -69,7 +82,7 @@ struct EmptyCommand: View {
     @ObservedObject var state: AssemblerState
     @State var line: Int
     @State var help: [String]
-    @State private var args: [Int] = []
+    @State private var args: [Int: Int] = [:]
     
     @State private var successful = false
     
@@ -83,15 +96,11 @@ struct EmptyCommand: View {
                         .foregroundColor(.orange)
                 }
                 Blank(text: arg, send: { result in
-                    args.append(result)
+                    args[index] = result
                     var command: CommandType = state.code[line]
-                    if args.count == command.arity {
-                        do {
-                            try command.fill(args: args)
-                            print("Succeeded")
-                        }
-                        catch {
-                            print("FAILED")
+                    if args.keys.count == command.arity {
+                        for key in args.keys.sorted(by: <) {
+                            command.args.append(args[key]!)
                         }
                     }                })
                 if index < help.count - 1 {
@@ -122,7 +131,7 @@ struct Blank: View {
                     .keyboardType(.numberPad)
                     .onReceive(Just(text)) { newValue in
                         let filtered = newValue.filter { "0123456789".contains($0) && !" \n\t\r".contains($0) }
-                        if filtered != newValue && filtered[0] != "0" && filtered != "" && Int(filtered)! > 0 && Int(filtered)! < 29 {
+                        if validRegister(filtered) {
                             self.text = filtered
                         }
                     }
@@ -132,7 +141,7 @@ struct Blank: View {
             if !filled {
                 Button {
                     let filtered = text.filter { "0123456789".contains($0) && !" \n\t\r".contains($0) }
-                    if filtered != "" && filtered[0] != "0" && Int(filtered)! > 0 && Int(filtered)! < 29 {
+                    if validRegister(filtered) {
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                         
                         filled = true
@@ -149,6 +158,19 @@ struct Blank: View {
                 .padding(.leading, 1)
             }
         }
+    }
+    
+    func validRegister(_ filtered: String) -> Bool {
+        if filtered.count > 1 && filtered[0] == "0" {
+            return false
+        }
+        else if filtered == "" {
+            return false
+        }
+        else if Int(filtered)! < 0 && Int(filtered)! > 29 {
+            return false
+        }
+        return true
     }
 }
 
