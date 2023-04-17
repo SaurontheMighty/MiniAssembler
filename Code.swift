@@ -88,12 +88,11 @@ struct EmptyCommand: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            Text("(")
             ForEach(Array(help.enumerated()), id: \.offset) { index, arg in
                 if index == 0 {
                     Text("$")
                         .bold()
-                        .foregroundColor(.orange)
+                        .foregroundColor(.darkOrange)
                 }
                 Blank(text: arg, send: { result in
                     args[index] = result
@@ -107,7 +106,6 @@ struct EmptyCommand: View {
                     Text(", ")
                 }
             }
-            Text(")")
         }
     }
 }
@@ -123,7 +121,7 @@ struct Blank: View {
         HStack (spacing: 0) {
             if filled {
                 Text(text)
-                    .foregroundColor(.orange)
+                    .foregroundColor(.darkOrange)
             }
             else {
                 TextField("", text: $text)
@@ -135,7 +133,7 @@ struct Blank: View {
                             self.text = filtered
                         }
                     }
-                    .border(.orange, width: 1)
+                    .border(Color.darkOrange, width: 1)
             }
             
             if !filled {
@@ -153,7 +151,7 @@ struct Blank: View {
                     }
                 } label: {
                     Image(systemName: "checkmark.circle")
-                        .foregroundColor(.orange)
+                        .foregroundColor(.darkOrange)
                 }
                 .padding(.leading, 1)
             }
@@ -167,7 +165,7 @@ struct Blank: View {
         else if filtered == "" {
             return false
         }
-        else if Int(filtered)! < 0 && Int(filtered)! > 29 {
+        else if Int(filtered)! < 0 || Int(filtered)! > 29 {
             return false
         }
         return true
@@ -179,21 +177,19 @@ struct Line: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            Text("(")
             ForEach(Array(args.enumerated()), id: \.offset) { index, arg in
                 if index == 0 {
                     Text("$")
                         .bold()
-                        .foregroundColor(.orange)
+                        .foregroundColor(.darkOrange)
                 }
                 Text(String(arg))
                     .bold()
-                    .foregroundColor(.orange)
+                    .foregroundColor(.darkOrange)
                 if index < args.count - 1 {
                     Text(", ")
                 }
             }
-            Text(")")
         }
     }
 }

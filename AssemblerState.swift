@@ -18,9 +18,10 @@ class AssemblerState: ObservableObject {
     @Published var deletedLines: Set<Int> = []
     
     init() {
-        for val in 0...29 {
+        for val in 0..<32 {
             registers[val] = 0
         }
+
     }
     
     func assemble() -> [Int] {
@@ -96,6 +97,27 @@ class add: CommandType {
             throw CommandError.cannotAssignZero
         }
         registers[args[0]] = registers[args[1]]! + registers[args[2]]!
+    }
+}
+
+class sub: CommandType {
+    let name = "add"
+    let arity = 3
+    var args: [Int] = []
+    let help = ["target", "a", "b"]
+    let description = "target = a + b"
+    
+    func execute(registers: inout [Int: Int]) throws -> Void {
+        if args == [] {
+            throw CommandError.incompleteDefinition
+        }
+        else if args.count != arity {
+            throw CommandError.invalidArity
+        }
+        else if args[0] == 0 {
+            throw CommandError.cannotAssignZero
+        }
+        registers[args[0]] = registers[args[1]]! - registers[args[2]]!
     }
 }
 

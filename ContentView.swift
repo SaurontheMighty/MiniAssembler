@@ -3,13 +3,14 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var assemblerState: AssemblerState = AssemblerState()
     @State var usedRegisters: [Int] = [0]
+    @State var introShowing = true
         
     var body: some View {
         ScrollView {
             Card(content: Code(state: assemblerState, used: { used in
                 print(used)
                 usedRegisters = used
-            }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 200)
+            }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 400)
             
             HStack(spacing: 3) {
                 Command(command: add(), send: { tapped in
@@ -22,9 +23,13 @@ struct ContentView: View {
             .padding(.top, 5)
             
             Card(content: Registers(state: assemblerState, usedRegisters: $usedRegisters), title: "Registers", minHeight: 0)
-            Card(content: Test(), title: "Help", minHeight: 50)
+//            Card(content: Help(), title: "Help", minHeight: 50)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $introShowing) {
+            IntroView()
+                .preferredColorScheme(.light)
+        }
     }
 }
 

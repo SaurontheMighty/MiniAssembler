@@ -21,7 +21,7 @@ struct Registers: View {
 
                         Text("\(state.registers[index]!)")
                             .bold()
-                            .foregroundColor(.orange)
+                            .foregroundColor(.darkOrange)
                     }
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)

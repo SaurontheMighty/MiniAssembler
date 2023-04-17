@@ -17,6 +17,6 @@ extension Color {
     }
     
     public static var darkOrange: Color {
-        return Color(UIColor(red: 134/255, green: 1/255, blue: 238/255, alpha: 1.0))
+        return Color(UIColor(red: 251/255, green: 90/255, blue: 0/255, alpha: 1.0))
     }
 }
