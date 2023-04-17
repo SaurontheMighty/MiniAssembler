@@ -10,9 +10,8 @@ import Foundation
 class AssemblerState: ObservableObject {
     @Published var registers: [Int: Int] = [0: 0]
     @Published var labels: [String: Int] = [:]
-    @Published var code: [CommandType] = [
-        add(target: 1, op1: 5, op2: 6),
-    ]
+    @Published var code: [CommandType] = []
+    @Published var error: String = ""
     
     func assemble() {
         print("ASSEMBLING")
@@ -27,6 +26,8 @@ protocol CommandType {
     var help: [String] { get }
     var description: String { get }
     
+    init()
+    mutating func fill(args: [Int]) throws
     func execute() throws -> Int
 }
 
@@ -38,7 +39,7 @@ enum CommandError: Error {
 struct add: CommandType {
     let name = "add"
     let arity = 3
-    let args: [Int]
+    var args: [Int]
     let help = ["target", "a", "b"]
     let description = "target = a + b"
     
@@ -46,8 +47,11 @@ struct add: CommandType {
         self.args = []
     }
     
-    init(target: Int, op1: Int, op2: Int) {
-        args = [target, op1, op2]
+    mutating func fill(args: [Int]) throws {
+        if args.count != arity {
+            throw CommandError.invalidArity
+        }
+        self.args = args
     }
     
     func execute() throws -> Int {
