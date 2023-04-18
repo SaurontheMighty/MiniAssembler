@@ -11,13 +11,13 @@ struct Command: View {
     @State var command: CommandType
     @State private var help: Bool = false
     
-    let send: (CommandType) -> Void
+    let send: (String) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 0) {
                 Button {
-                    send(command)
+                    send(command.name)
                 } label: {
                     HStack(spacing: 0) {
                         Text(command.name)
@@ -53,8 +53,8 @@ struct Command: View {
                     .foregroundColor(.white)
             }
         }
-        .padding(.horizontal, 10)
         .padding(.vertical, 5)
+        .padding(.horizontal, 10)
         .background(CardBackground(bgColor: .purple))
     }
 }

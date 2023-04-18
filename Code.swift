@@ -36,6 +36,11 @@ struct Code: View {
                     else {
                         Line(help: command.help, args: command.args)
                     }
+                    if command.name == "label" {
+                        Text(":")
+                            .bold()
+                            .foregroundColor(.darkOrange)
+                    }
                     
                     
                     Spacer()
@@ -79,7 +84,7 @@ struct EmptyCommand: View {
     @ObservedObject var state: AssemblerState
     @State var line: Int
     @State var help: [String]
-    @State private var args: [Int: Int] = [:]
+    @State private var args: [Int: String] = [:]
     
     @State private var successful = false
     
@@ -97,7 +102,8 @@ struct EmptyCommand: View {
                     var command: CommandType = state.code[line]
                     if args.keys.count == command.arity {
                         for key in args.keys.sorted(by: <) {
-                            command.args.append(args[key]!)
+                            let val = args[key]!
+                            command.args.append(val)
                         }
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }
@@ -116,7 +122,7 @@ struct Blank: View {
     @State private var filled = false
     @State private var textColor: Color = .primary
     @State var isRegister: Bool = false
-    let send: (Int) -> Void
+    let send: (String) -> Void
 
     
     var body: some View {
@@ -130,9 +136,12 @@ struct Blank: View {
                     .foregroundColor(textColor)
                     .keyboardType(isRegister ? .numberPad : .numbersAndPunctuation)
                     .onReceive(Just(text)) { newValue in
-                        let filtered = newValue.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
-                        if (isRegister && validRegister(filtered)) || !isRegister {
+                        if (isRegister && validRegister(text)) {
+                            let filtered = text.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
                             self.text = filtered
+                        }
+                        else if !isRegister {
+                            self.text = text
                         }
                     }
                     .border(Color.darkOrange, width: 1)
@@ -140,11 +149,14 @@ struct Blank: View {
             
             if !filled {
                 Button {
-                    let filtered = text.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
-                    if (isRegister && validRegister(filtered)) || !isRegister {
+                    if (isRegister && validRegister(text)) {
+                        let filtered = text.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
                         filled = true
-                        
-                        send(Int(text)!)
+                        send(filtered)
+                    }
+                    else if !isRegister {
+                        filled = true
+                        send(text)
                     }
                     else {
                         textColor = .red
@@ -158,7 +170,10 @@ struct Blank: View {
         }
     }
     
-    func validRegister(_ filtered: String) -> Bool {
+    func validRegister(_ text: String) -> Bool {
+        print("valid register? \(text)")
+        
+        let filtered = text.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
         if filtered.count > 1 && filtered[0] == "0" {
             return false
         }
@@ -174,7 +189,7 @@ struct Blank: View {
 
 struct Line: View {
     @State var help: [String]
-    @State var args: [Int]
+    @State var args: [String]
     
     var body: some View {
         HStack(spacing: 0) {
@@ -184,7 +199,7 @@ struct Line: View {
                         .bold()
                         .foregroundColor(.darkOrange)
                 }
-                Text(String(arg))
+                Text(arg)
                     .bold()
                     .foregroundColor(.darkOrange)
                 if index < args.count - 1 {

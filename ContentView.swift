@@ -22,6 +22,9 @@ struct ContentView: View {
                 Command(command: li(), send: { tapped in
                     assemblerState.code.append(li())
                 })
+                Command(command: label(), send: { tapped in
+                    assemblerState.code.append(label())
+                })
                 Command(command: beq(), send: { tapped in
                     assemblerState.code.append(beq())
                 })
@@ -31,7 +34,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 5)
-            .padding(.leading, 10)
+            .padding(.horizontal, 10)
             
             HStack(spacing: 3) {
                 
@@ -82,7 +85,7 @@ struct Card<Content: View>: View {
             .frame(minHeight: minHeight)
             .background(CardBackground())
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 10)
         .padding(.horizontal, 10)
     }

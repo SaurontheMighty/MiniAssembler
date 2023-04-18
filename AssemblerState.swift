@@ -27,8 +27,26 @@ class AssemblerState: ObservableObject {
     func assemble() -> [Int] {
         assemblyError = ""
         var usedRegistersSet: Set<Int> = []
+        var labels: [String: Int] = [:]
         var index = 0
         var counter = 0
+        
+        for (index, instruction) in code.enumerated() {
+            print("\(index) \(instruction)")
+            if instruction.name == "label" {
+                if instruction.args.count == 0 { // empty label
+                    assemblyError = "Tried to execute instruction without completing definition"
+                    return []
+                }
+                else if !labels.contains(where: { $0.key == instruction.args[0] }) { // labels doesn't already have that element
+                    labels[instruction.args[0]] = index
+                }
+                else {
+                    assemblyError = "Label name already exists!"
+                    return []
+                }
+            }
+        }
         
         while index < code.count {
             counter += 1
@@ -57,7 +75,7 @@ class AssemblerState: ObservableObject {
                 let help = command.help
                 for i in 0..<arity {
                     if (help[i][0] == "$") {
-                        registersUsedInCommand.append(args[i])
+                        registersUsedInCommand.append(Int(args[i])!)
                     }
                 }
                 
@@ -65,7 +83,20 @@ class AssemblerState: ObservableObject {
                 
                 if(command.name == "beq" || command.name == "bne") {
                     if result {
-                        index += command.args.last! + 1
+                        let skip = command.args.last!
+                        let skipi = Int(skip)
+                        if skipi == nil {
+                            if labels.contains(where: { $0.key == skip }) {
+                                index = labels[skip]!
+                            }
+                            else {
+                                assemblyError = "Label \(skip) does not exist"
+                                break
+                            }
+                        }
+                        else {
+                            index += skipi! + 1
+                        }
                     }
                     else {
                         index += 1
@@ -88,15 +119,19 @@ class AssemblerState: ObservableObject {
                 break
             }
             catch CommandError.invalidArity {
-                assemblyError = "Tried to execute command with incorrect number of arguments"
+                assemblyError = "Tried to execute instruction with incorrect number of arguments"
                 break
             }
             catch CommandError.incompleteDefinition {
-                assemblyError = "Tried to execute command without completing definition"
+                assemblyError = "Tried to execute instruction without completing definition"
                 break
             }
             catch CommandError.nonExecutableCommand {
-                assemblyError = "Tried to execute a command that cannot be executed"
+                assemblyError = "Tried to execute a instruction that cannot be executed"
+                break
+            }
+            catch CommandError.invalidLabel {
+                assemblyError = "Invalid Label!"
                 break
             }
             catch {
@@ -110,15 +145,3 @@ class AssemblerState: ObservableObject {
     }
     
 }
-
-protocol CommandType {
-    var label: String { get set }
-    var name: String { get }
-    var arity: Int { get }
-    var args: [Int] { get set }
-    var help: [String] { get }
-    var description: String { get }
-    
-    func execute(registers: inout [Int: Int]) throws -> Bool
-}
-

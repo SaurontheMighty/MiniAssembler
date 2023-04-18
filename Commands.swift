@@ -6,7 +6,19 @@
 //
 import Foundation
 
+protocol CommandType {
+    var label: String { get set }
+    var name: String { get }
+    var arity: Int { get }
+    var args: [String] { get set }
+    var help: [String] { get }
+    var description: String { get }
+    
+    func execute(registers: inout [Int: Int]) throws -> Bool
+}
+
 enum CommandError: Error {
+    case invalidLabel
     case invalidArity
     case invalidRegister
     case outOfBounds
@@ -19,7 +31,7 @@ class add: CommandType {
     var label = ""
     let name = "add"
     let arity = 3
-    var args: [Int] = []
+    var args: [String] = []
     let help = ["$target", "$a", "$b"]
     let description = "target = value of register a + value of register b"
     
@@ -30,10 +42,17 @@ class add: CommandType {
         else if args.count != arity {
             throw CommandError.invalidArity
         }
-        else if args[0] == 0 {
+        else if args[0] == "0" {
             throw CommandError.cannotAssignZero
         }
-        registers[args[0]] = registers[args[1]]! + registers[args[2]]!
+        else if !validRegister(reg: args[0]) || !validRegister(reg: args[1]) || !validRegister(reg: args[2]) {
+            throw CommandError.invalidRegister
+        }
+        let target = Int(args[0])!
+        let op1 = Int(args[1])!
+        let op2 = Int(args[2])!
+        
+        registers[target] = registers[op1]! + registers[op2]!
         return true
     }
 }
@@ -42,7 +61,7 @@ class sub: CommandType {
     var label = ""
     let name = "sub"
     let arity = 3
-    var args: [Int] = []
+    var args: [String] = []
     let help = ["$target", "$a", "$b"]
     let description = "target = value of register a - value of register b"
     
@@ -53,10 +72,17 @@ class sub: CommandType {
         else if args.count != arity {
             throw CommandError.invalidArity
         }
-        else if args[0] == 0 {
+        else if args[0] == "0" {
             throw CommandError.cannotAssignZero
         }
-        registers[args[0]] = registers[args[1]]! - registers[args[2]]!
+        else if !validRegister(reg: args[0]) || !validRegister(reg: args[1]) || !validRegister(reg: args[2]) {
+            throw CommandError.invalidRegister
+        }
+        let target = Int(args[0])!
+        let op1 = Int(args[1])!
+        let op2 = Int(args[2])!
+        
+        registers[target] = registers[op1]! - registers[op2]!
         return true
     }
 }
@@ -65,18 +91,45 @@ class li: CommandType {
     var label = ""
     let name = "li"
     let arity = 2
-    var args: [Int] = []
+    var args: [String] = []
     let help = ["$target", "value"]
     let description = "target = value"
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
-        guard args.count == arity else {
+        if args.count != arity {
             throw CommandError.invalidArity
         }
-        guard args[0] != 0 else {
+        else if args[0] == "0" {
             throw CommandError.cannotAssignZero
         }
-        registers[args[0]] = args[1]
+        else if !validRegister(reg: args[0]) {
+            throw CommandError.invalidRegister
+        }
+        let target = Int(args[0])!
+        let value = Int(args[1])!
+        
+        registers[target] = value
+        return true
+    }
+}
+
+class label: CommandType {
+    var label = ""
+    let name = "label"
+    let arity = 1
+    var args: [String] = []
+    let help = ["name"]
+    let description =
+    """
+        label: Adds a label to the line. Labels cannot start with a number but can contain numbers. For example n0fx is a valid label.
+    
+        Once a label is added, you can simply type the label name in beq/bne and when the condition is met the interpreter will jump to where ever the label is.
+    """
+    
+    func execute(registers: inout [Int: Int]) throws -> Bool {
+        guard let firstChar = args[0].first else { throw CommandError.invalidLabel }
+        guard firstChar.isLetter || firstChar.isNumber else { throw CommandError.invalidLabel }
+        
         return true
     }
 }
@@ -85,7 +138,7 @@ class beq: CommandType {
     var label = ""
     let name = "beq"
     let arity = 3
-    var args: [Int] = []
+    var args: [String] = []
     let help = ["$left", "$right", "skip"]
     let description =
     """
@@ -108,7 +161,9 @@ class beq: CommandType {
         guard validRegister(reg: args[0]) && validRegister(reg: args[1]) else {
             throw CommandError.invalidRegister
         }
-        return registers[args[0]] == registers[args[1]]
+        let op1 = Int(args[0])!
+        let op2 = Int(args[1])!
+        return registers[op1] == registers[op2]
     }
 }
 
@@ -116,7 +171,7 @@ class bne: CommandType {
     var label = ""
     let name = "bne"
     let arity = 3
-    var args: [Int] = []
+    var args: [String] = []
     let help = ["$left", "$right", "skip"]
     let description =
     """
@@ -142,12 +197,16 @@ class bne: CommandType {
         guard validRegister(reg: args[0]) && validRegister(reg: args[1]) else {
             throw CommandError.invalidRegister
         }
-        return registers[args[0]] == registers[args[1]]
+        let op1 = Int(args[0])!
+        let op2 = Int(args[1])!
+        return registers[op1] != registers[op2]
     }
 }
 
-func validRegister(reg: Int) -> Bool {
-    if reg >= 0 && reg < 28 {
+func validRegister(reg: String) -> Bool {
+    let regi = Int(reg)
+
+    if regi != nil && regi! >= 0 && regi! < 28{
         return true
     }
     return false
