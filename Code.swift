@@ -15,65 +15,59 @@ struct Code: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(0..<state.code.count, id: \.self) { line in
-                let command = state.code[line]
-                if(!state.deletedLines.contains(line)) {
-                    HStack(spacing: 0) {
+                var command = state.code[line]
+                HStack(spacing: 0) {
+                    Group {
+                        Text("\(line)")
+                            .font(.system(size: 14, design: .monospaced))
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 3)
                         Text(command.name)
                             .bold()
                             .foregroundColor(.deepPurple)
+                    }
+                    
+                    if(!state.deletedLines.contains(line)) {
                         if command.args == [] {
                             EmptyCommand(state: state, line: line, help: command.help)
                         }
                         else {
                             Line(args: command.args)
                         }
-                        Spacer()
-                        Button {
-                            state.code[line].args = []
-                        } label: {
-                            Image(systemName: "pencil.circle.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(.black)
-                                
-                        }
-                        .padding(.trailing, 5)
-                        Button {
-                            state.deletedLines.insert(line)
-                        } label: {
-                            Image(systemName: "trash.circle.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(.red)
-                                
-                        }
-                        .padding(.trailing, 5)
                     }
+                    else {
+                        
+                    }
+                    
+                    
+                    Spacer()
+                    
+                    Button {
+                        command.args = []
+                    } label: {
+                        Image(systemName: "pencil.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.blue)
+                            
+                    }
+                    .padding(.trailing, 2)
+                    
+                    Button {
+                        state.deletedLines.insert(line)
+                    } label: {
+                        Image(systemName: "x.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.red)
+                            
+                    }
+                    .padding(.trailing, 2)
                 }
+                
             }
             Spacer()
-            HStack {
-                Text(state.assemblyError)
-                    .foregroundColor(.red)
-                    .bold()
-                Spacer()
-                Button {
-                    used(state.assemble())
-                } label: {
-                    HStack(alignment: .center, spacing: 4) {
-                        Text("Assemble")
-                            .bold()
-                            .foregroundColor(.white)
-                        Image(systemName: "play.fill")
-                            .foregroundColor(.white)
-                    }
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(.green)
-                    )
-                }
-            }
-            .padding(.trailing, 5)
+            BottomBar(state: state, used: { usedRegs in
+                used(usedRegs)
+            })
         }
     }
 }
@@ -193,3 +187,58 @@ struct Line: View {
         }
     }
 }
+
+struct DeletedLine: View {
+    @State var arity: Int
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(0..<arity, id: \.self) { index in
+                if index == 0 {
+                    Text("$")
+                        .bold()
+                        .foregroundColor(.darkOrange)
+                }
+                Text("_")
+                    .bold()
+                    .foregroundColor(.darkOrange)
+                if index < arity - 1 {
+                    Text(", ")
+                }
+            }
+        }
+    }
+}
+
+struct BottomBar: View {
+    @ObservedObject var state: AssemblerState
+    let used: ([Int]) -> Void
+    
+    var body: some View {
+        HStack {
+            Text(state.assemblyError)
+                .foregroundColor(.red)
+                .bold()
+            Spacer()
+            Button {
+                used(state.assemble())
+            } label: {
+                HStack(alignment: .center, spacing: 4) {
+                    Text("Assemble")
+                        .bold()
+                        .foregroundColor(.white)
+                    Image(systemName: "play.fill")
+                        .foregroundColor(.white)
+                }
+                .padding(.vertical, 5)
+                .padding(.horizontal, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(.green)
+                )
+            }
+        }
+        .padding(.trailing, 5)
+    }
+}
+

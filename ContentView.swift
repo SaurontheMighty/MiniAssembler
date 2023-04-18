@@ -10,15 +10,23 @@ struct ContentView: View {
             Card(content: Code(state: assemblerState, used: { used in
                 print(used)
                 usedRegisters = used
-            }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 400)
+            }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 300)
             
             HStack(spacing: 3) {
                 Command(command: add(), send: { tapped in
-                    assemblerState.code.append(tapped)
+                    assemblerState.code.append(add())
                 })
                 Command(command: li(), send: { tapped in
+                    assemblerState.code.append(li())
+                })
+            }
+            .padding(.top, 5)
+            
+            HStack(spacing: 3) {
+                Command(command: beq(), send: { tapped in
                     assemblerState.code.append(tapped)
                 })
+                
             }
             .padding(.top, 5)
             

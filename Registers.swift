@@ -35,7 +35,9 @@ struct Registers: View {
 }
 //
 //struct Registers_Previews: PreviewProvider {
+//    @State var reg: [Int] = [0,1,2,3]
+//    
 //    static var previews: some View {
-//        Registers()
+//        Registers(state: AssemblerState(), usedRegisters: $reg)
 //    }
 //}

@@ -10,8 +10,8 @@ import SwiftUI
 struct IntroView: View {
     var body: some View {
         TabView {
-            Welcome()
-            WhatIsAssembly()
+//            Welcome()
+//            WhatIsAssembly()
             ThisProject()
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -161,7 +161,12 @@ struct ThisProject: View {
 
             Group {
                 Spacer()
-                Registers(state: AssemblerState(), usedRegisters: $registers)
+                ScrollView(.horizontal) {
+                    HStack {
+                        Registers(state: AssemblerState(), usedRegisters: $registers)
+                    }
+                    .frame(height: 50)
+                }
                 Spacer()
             }
 
