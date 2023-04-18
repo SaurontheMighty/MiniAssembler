@@ -10,7 +10,7 @@ struct ContentView: View {
             Card(content: Code(state: assemblerState, used: { used in
                 print(used)
                 usedRegisters = used
-            }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 300)
+            }), title: "Mini Assembly", trailingTitle: "[MIPS]", minHeight: 300)
             
             VStack(alignment: .leading, spacing: 3) {
                 Command(command: add(), send: { tapped in

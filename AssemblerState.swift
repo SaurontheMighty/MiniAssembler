@@ -28,8 +28,16 @@ class AssemblerState: ObservableObject {
         assemblyError = ""
         var usedRegistersSet: Set<Int> = []
         var index = 0
+        var counter = 0
         
         while index < code.count {
+            counter += 1
+            
+            if counter == 100 {
+                assemblyError = "Infinite Loop detected!"
+                break
+            }
+            
             let command = code[index]
             if deletedLines.contains(index) {
                 index += 1
@@ -42,7 +50,18 @@ class AssemblerState: ObservableObject {
                 print(command.args)
                 let result = try command.execute(registers: &registers)
                 
-                usedRegistersSet.formUnion(Set(command.args))
+                var registersUsedInCommand: [Int] = []
+                
+                let arity = command.arity
+                let args = command.args
+                let help = command.help
+                for i in 0..<arity {
+                    if (help[i][0] == "$") {
+                        registersUsedInCommand.append(args[i])
+                    }
+                }
+                
+                usedRegistersSet.formUnion(Set(registersUsedInCommand))
                 
                 if(command.name == "beq" || command.name == "bne") {
                     if result {

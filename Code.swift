@@ -86,19 +86,22 @@ struct EmptyCommand: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(help.enumerated()), id: \.offset) { index, arg in
-                if arg[0] == "$" {
+                let isRegister = arg[0] == "$"
+                if isRegister {
                     Text("$")
                         .bold()
                         .foregroundColor(.darkOrange)
                 }
-                Blank(text: arg[0] == "$" ? arg.substring(fromIndex: 1) : arg, send: { result in
+                Blank(text: isRegister ? arg.substring(fromIndex: 1) : arg, isRegister: isRegister, send: { result in
                     args[index] = result
                     var command: CommandType = state.code[line]
                     if args.keys.count == command.arity {
                         for key in args.keys.sorted(by: <) {
                             command.args.append(args[key]!)
                         }
-                    }                })
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                })
                 if index < help.count - 1 {
                     Text(", ")
                 }
@@ -110,9 +113,11 @@ struct EmptyCommand: View {
 struct Blank: View {
     @State var text: String
     
-    let send: (Int) -> Void
     @State private var filled = false
     @State private var textColor: Color = .primary
+    @State var isRegister: Bool = false
+    let send: (Int) -> Void
+
     
     var body: some View {
         HStack (spacing: 0) {
@@ -123,10 +128,10 @@ struct Blank: View {
             else {
                 TextField("", text: $text)
                     .foregroundColor(textColor)
-                    .keyboardType(.numberPad)
+                    .keyboardType(isRegister ? .numberPad : .numbersAndPunctuation)
                     .onReceive(Just(text)) { newValue in
-                        let filtered = newValue.filter { "0123456789".contains($0) && !" \n\t\r".contains($0) }
-                        if validRegister(filtered) {
+                        let filtered = newValue.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
+                        if (isRegister && validRegister(filtered)) || !isRegister {
                             self.text = filtered
                         }
                     }
@@ -135,10 +140,8 @@ struct Blank: View {
             
             if !filled {
                 Button {
-                    let filtered = text.filter { "0123456789".contains($0) && !" \n\t\r".contains($0) }
-                    if validRegister(filtered) {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                        
+                    let filtered = text.filter { "-0123456789".contains($0) && !" \n\t\r".contains($0) }
+                    if (isRegister && validRegister(filtered)) || !isRegister {
                         filled = true
                         
                         send(Int(text)!)

@@ -97,6 +97,8 @@ class beq: CommandType {
     
         Description:
         Allows us to implement loops and skip to a different line conditionally.
+    
+        SIMPLIFICATION: In 'real' MIPS the offset is the number of bytes to offset by (every instruction is 4 bytes so it would be a factor of 4) but here it is simplified to be number of lines
     """
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
@@ -122,10 +124,15 @@ class bne: CommandType {
         Call: ($left, $right, skip)
         
         High Level Equivalent:
-        if (left != right) { jump to (skip - 1) lines ahead }
+        if (left != right) {
+            if skip is positive: jump to (skip + 1) lines ahead
+            if skip is negative: jump to (skip + 1) lines behind
+        }
     
         Description:
         Allows us to implement loops and skip to a different line conditionally.
+    
+        SIMPLIFICATION: In 'real' MIPS the offset is the number of bytes to offset by (every instruction is 4 bytes so it would be a factor of 4) but here it is simplified to be number of lines
     """
     
     func execute(registers: inout [Int: Int]) throws -> Bool {

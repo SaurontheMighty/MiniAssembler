@@ -65,10 +65,7 @@ struct Welcome: View {
             }
             Spacer()
 
-            Text("Swipe →")
-                .foregroundColor(.deepPurple)
-                .font(.system(size: 15))
-                .bold()
+            Swipe()
         }
         .padding(.horizontal, 15)
     }
@@ -131,10 +128,8 @@ struct WhatIsAssembly: View {
                 BasicText(text: "Most languages have compilers that take your code in a high level programming language (like Swift, Python or C++), optimizes and translates it to assembly.")
             }
 
-            Text("Swipe →")
-                .foregroundColor(.deepPurple)
-                .font(.system(size: 15))
-                .bold()
+            Swipe()
+
         }
         .padding(.horizontal, 15)
     }
@@ -178,10 +173,8 @@ struct ThisProject: View {
             
             Spacer()
 
-            Text("Swipe →")
-                .foregroundColor(.deepPurple)
-                .font(.system(size: 15))
-                .bold()
+            Swipe()
+
         }
         .padding(.horizontal, 15)
         .onAppear {
@@ -189,5 +182,15 @@ struct ThisProject: View {
                 registers.append(v)
             }
         }
+    }
+}
+
+struct Swipe: View {
+    var body: some View {
+        Text("Swipe →")
+            .foregroundColor(.deepPurple)
+            .font(.system(size: 15))
+            .bold()
+            .padding(.bottom, 20)
     }
 }

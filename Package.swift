@@ -8,13 +8,13 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "Assembler",
+    name: "Assembly",
     platforms: [
         .iOS("15.2")
     ],
     products: [
         .iOSApplication(
-            name: "Assembler",
+            name: "Assembly",
             targets: ["AppModule"],
             bundleIdentifier: "com.ashishselvaraj.Assembler",
             teamIdentifier: "33W68G723R",
