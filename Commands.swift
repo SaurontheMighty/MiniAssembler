@@ -16,11 +16,12 @@ enum CommandError: Error {
 }
 
 class add: CommandType {
+    var label = ""
     let name = "add"
     let arity = 3
     var args: [Int] = []
     let help = ["$target", "$a", "$b"]
-    let description = "target = a + b"
+    let description = "target = value of register a + value of register b"
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
         if args == [] {
@@ -38,11 +39,12 @@ class add: CommandType {
 }
 
 class sub: CommandType {
-    let name = "add"
+    var label = ""
+    let name = "sub"
     let arity = 3
     var args: [Int] = []
     let help = ["$target", "$a", "$b"]
-    let description = "target = a + b"
+    let description = "target = value of register a - value of register b"
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
         if args == [] {
@@ -60,6 +62,7 @@ class sub: CommandType {
 }
 
 class li: CommandType {
+    var label = ""
     let name = "li"
     let arity = 2
     var args: [Int] = []
@@ -79,6 +82,7 @@ class li: CommandType {
 }
 
 class beq: CommandType {
+    var label = ""
     let name = "beq"
     let arity = 3
     var args: [Int] = []
@@ -90,6 +94,35 @@ class beq: CommandType {
         
         High Level Equivalent:
         if (left == right) { jump to (skip - 1) lines ahead }
+    
+        Description:
+        Allows us to implement loops and skip to a different line conditionally.
+    """
+    
+    func execute(registers: inout [Int: Int]) throws -> Bool {
+        guard args.count == arity else {
+            throw CommandError.invalidArity
+        }
+        guard validRegister(reg: args[0]) && validRegister(reg: args[1]) else {
+            throw CommandError.invalidRegister
+        }
+        return registers[args[0]] == registers[args[1]]
+    }
+}
+
+class bne: CommandType {
+    var label = ""
+    let name = "bne"
+    let arity = 3
+    var args: [Int] = []
+    let help = ["$left", "$right", "skip"]
+    let description =
+    """
+        BNE: Branch on Not Equal to
+        Call: ($left, $right, skip)
+        
+        High Level Equivalent:
+        if (left != right) { jump to (skip - 1) lines ahead }
     
         Description:
         Allows us to implement loops and skip to a different line conditionally.

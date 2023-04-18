@@ -22,40 +22,43 @@ struct Code: View {
                             .font(.system(size: 14, design: .monospaced))
                             .foregroundColor(.gray)
                             .padding(.trailing, 3)
-                        Text(command.name)
+                        Text("\(command.name) ")
                             .bold()
-                            .foregroundColor(.deepPurple)
+                            .foregroundColor(state.deletedLines.contains(line) ? .gray : .deepPurple)
                     }
                     
-                    if(!state.deletedLines.contains(line)) {
-                        if command.args == [] {
-                            EmptyCommand(state: state, line: line, help: command.help)
-                        }
-                        else {
-                            Line(args: command.args)
-                        }
+                    if(state.deletedLines.contains(line)) {
+                        DeletedLine(help: command.help, arity: command.arity)
+                    }
+                    else if command.args == [] {
+                        EmptyCommand(state: state, line: line, help: command.help)
                     }
                     else {
-                        
+                        Line(help: command.help, args: command.args)
                     }
                     
                     
                     Spacer()
                     
                     Button {
-                        command.args = []
+                        state.code[line].args = []
                     } label: {
                         Image(systemName: "pencil.circle.fill")
                             .font(.system(size: 20))
                             .foregroundColor(.blue)
-                            
+                            .opacity(state.deletedLines.contains(line) ? 0 : 1)
                     }
                     .padding(.trailing, 2)
                     
                     Button {
-                        state.deletedLines.insert(line)
+                        if state.deletedLines.contains(line) {
+                            state.deletedLines.remove(line)
+                        }
+                        else {
+                            state.deletedLines.insert(line)
+                        }
                     } label: {
-                        Image(systemName: "x.circle.fill")
+                        Image(systemName: state.deletedLines.contains(line) ? "arrowshape.turn.up.backward.circle.fill" : "x.circle.fill")
                             .font(.system(size: 20))
                             .foregroundColor(.red)
                             
@@ -83,12 +86,12 @@ struct EmptyCommand: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(help.enumerated()), id: \.offset) { index, arg in
-                if index == 0 {
+                if arg[0] == "$" {
                     Text("$")
                         .bold()
                         .foregroundColor(.darkOrange)
                 }
-                Blank(text: arg, send: { result in
+                Blank(text: arg[0] == "$" ? arg.substring(fromIndex: 1) : arg, send: { result in
                     args[index] = result
                     var command: CommandType = state.code[line]
                     if args.keys.count == command.arity {
@@ -167,12 +170,13 @@ struct Blank: View {
 }
 
 struct Line: View {
+    @State var help: [String]
     @State var args: [Int]
     
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(args.enumerated()), id: \.offset) { index, arg in
-                if index == 0 {
+                if help[index][0] == "$" {
                     Text("$")
                         .bold()
                         .foregroundColor(.darkOrange)
@@ -189,19 +193,19 @@ struct Line: View {
 }
 
 struct DeletedLine: View {
+    @State var help: [String]
     @State var arity: Int
     
     var body: some View {
         HStack(spacing: 0) {
             ForEach(0..<arity, id: \.self) { index in
-                if index == 0 {
+                if help[index][0] == "$" {
                     Text("$")
-                        .bold()
-                        .foregroundColor(.darkOrange)
+                        .foregroundColor(.gray)
                 }
                 Text("_")
                     .bold()
-                    .foregroundColor(.darkOrange)
+                    .foregroundColor(.gray)
                 if index < arity - 1 {
                     Text(", ")
                 }
@@ -220,25 +224,42 @@ struct BottomBar: View {
                 .foregroundColor(.red)
                 .bold()
             Spacer()
-            Button {
-                used(state.assemble())
-            } label: {
-                HStack(alignment: .center, spacing: 4) {
-                    Text("Assemble")
-                        .bold()
-                        .foregroundColor(.white)
-                    Image(systemName: "play.fill")
-                        .foregroundColor(.white)
+            VStack(alignment: .trailing) {
+                Button {
+                    state.code = []
+                    state.deletedLines = []
+                } label: {
+                    NiceButtonView(text: "Clear", icon: "trash.fill", bgColor: .orange)
                 }
-                .padding(.vertical, 5)
-                .padding(.horizontal, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(.green)
-                )
+                Button {
+                    used(state.assemble())
+                } label: {
+                    NiceButtonView(text: "Assemble", icon: "play.fill", bgColor: .green)
+                }
             }
         }
         .padding(.trailing, 5)
     }
 }
 
+struct NiceButtonView: View {
+    @State var text: String
+    @State var icon: String
+    @State var bgColor: Color
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 4) {
+            Text(text)
+                .bold()
+                .foregroundColor(.white)
+            Image(systemName: icon)
+                .foregroundColor(.white)
+        }
+        .padding(.vertical, 5)
+        .padding(.horizontal, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(bgColor)
+        )
+    }
+}

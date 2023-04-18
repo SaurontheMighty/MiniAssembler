@@ -44,7 +44,7 @@ class AssemblerState: ObservableObject {
                 
                 usedRegistersSet.formUnion(Set(command.args))
                 
-                if(command.name == "beq") {
+                if(command.name == "beq" || command.name == "bne") {
                     if result {
                         index += command.args.last! + 1
                     }
@@ -93,6 +93,7 @@ class AssemblerState: ObservableObject {
 }
 
 protocol CommandType {
+    var label: String { get set }
     var name: String { get }
     var arity: Int { get }
     var args: [Int] { get set }

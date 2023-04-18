@@ -12,20 +12,28 @@ struct ContentView: View {
                 usedRegisters = used
             }), title: "Mini Assembler", trailingTitle: "[MIPS]", minHeight: 300)
             
-            HStack(spacing: 3) {
+            VStack(alignment: .leading, spacing: 3) {
                 Command(command: add(), send: { tapped in
                     assemblerState.code.append(add())
+                })
+                Command(command: sub(), send: { tapped in
+                    assemblerState.code.append(sub())
                 })
                 Command(command: li(), send: { tapped in
                     assemblerState.code.append(li())
                 })
+                Command(command: beq(), send: { tapped in
+                    assemblerState.code.append(beq())
+                })
+                Command(command: bne(), send: { tapped in
+                    assemblerState.code.append(bne())
+                })
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 5)
+            .padding(.leading, 10)
             
             HStack(spacing: 3) {
-                Command(command: beq(), send: { tapped in
-                    assemblerState.code.append(tapped)
-                })
                 
             }
             .padding(.top, 5)
