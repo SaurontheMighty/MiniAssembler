@@ -7,6 +7,13 @@
 
 import Foundation
 
+// The Class that controls the state of the interpreter
+//  registers: Map containing the value of each register
+//  labels: Map containing the position of every label
+//  code: Array containing the lines of code
+//  assemblyError: The error that is displayed in the UI
+//  stdout: If stdout was available it would get updated here
+//  deletedLines: A Set containing all deleted lines for fast lookup
 class AssemblerState: ObservableObject {
     @Published var registers: [Int: Int] = [:]
     @Published var labels: [String: Int] = [:]

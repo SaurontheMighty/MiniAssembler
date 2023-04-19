@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// Displays the registers visual in a horizontal scrollview
 struct Registers: View {
     @ObservedObject var state: AssemblerState
     @Binding var usedRegisters: [Int]

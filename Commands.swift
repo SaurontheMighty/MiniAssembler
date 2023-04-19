@@ -6,8 +6,14 @@
 //
 import Foundation
 
+// CommandType
+//  All commands: add, sub, beq, bne are of protocol CommandType
+//  args: Array of strings which represent the arguments given to the command
+//      Strings are used because in reality registers can contain ANY four bytes of information
+//      so this just makes it more extendable. Something like Hex can be implemented in the future.
+//  help: Array containing helpful hints about what should go in each box.
+//  description: Helpful information about the instruction
 protocol CommandType {
-    var label: String { get set }
     var name: String { get }
     var arity: Int { get }
     var args: [String] { get set }
@@ -32,7 +38,6 @@ enum CommandError: Error {
 }
 
 class add: CommandType {
-    var label = ""
     let name = "add"
     let arity = 3
     var args: [String] = []
@@ -69,7 +74,6 @@ class add: CommandType {
 }
 
 class sub: CommandType {
-    var label = ""
     let name = "sub"
     let arity = 3
     var args: [String] = []
@@ -106,7 +110,6 @@ class sub: CommandType {
 }
 
 class li: CommandType {
-    var label = ""
     let name = "li"
     let arity = 2
     var args: [String] = []
@@ -148,7 +151,6 @@ class li: CommandType {
 }
 
 class label: CommandType {
-    var label = ""
     let name = "label"
     let arity = 1
     var args: [String] = []
@@ -176,7 +178,6 @@ class label: CommandType {
 }
 
 class beq: CommandType {
-    var label = ""
     let name = "beq"
     let arity = 3
     var args: [String] = []
@@ -216,7 +217,6 @@ class beq: CommandType {
 }
 
 class bne: CommandType {
-    var label = ""
     let name = "bne"
     let arity = 3
     var args: [String] = []

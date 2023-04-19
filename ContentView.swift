@@ -63,6 +63,7 @@ struct ContentView: View {
     }
 }
 
+// Contains the Challenges
 struct ChallengesView: View {
     @ObservedObject var state: AssemblerState
     
@@ -107,6 +108,8 @@ struct Challenge: View {
                 Button {
                     state.deletedLines = []
                     state.code = code
+                    let impactMed = UIImpactFeedbackGenerator(style: .soft)
+                    impactMed.impactOccurred()
                 } label: {
                     NiceButtonView(text: "Solution", icon: "", bgColor: .blue)
                 }

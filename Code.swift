@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 
+// The Code View displays the lines of code along with blanks/TextFields
 struct Code: View {
     @ObservedObject var state: AssemblerState
     @State var hideClear: Bool
@@ -94,16 +95,7 @@ struct Code: View {
     }
 }
 
-//struct CodeLine: View {
-//    @ObservedObject var state: AssemblerState
-//    @State var line: Int
-//
-//    var body: some View {
-//
-//
-//    }
-//}
-
+// The View that is shown when a command is unfinished
 struct EmptyCommand: View {
     @ObservedObject var state: AssemblerState
     @State var line: Int
@@ -140,6 +132,7 @@ struct EmptyCommand: View {
     }
 }
 
+// The TextField
 struct Blank: View {
     @State var text: String
     
@@ -211,6 +204,7 @@ struct Blank: View {
     }
 }
 
+// The View that is shown when all fields are inputted for a given command
 struct Line: View {
     @State var command: CommandType
     
@@ -236,6 +230,7 @@ struct Line: View {
     }
 }
 
+// The View for lines that have been deleted
 struct DeletedLine: View {
     @State var help: [String]
     @State var arity: Int
@@ -258,6 +253,7 @@ struct DeletedLine: View {
     }
 }
 
+// The Assemble & Clear Buttons
 struct BottomBar: View {
     @ObservedObject var state: AssemblerState
     @State var hideClear: Bool
@@ -274,12 +270,16 @@ struct BottomBar: View {
                     Button {
                         state.code = []
                         state.deletedLines = []
+                        let impactMed = UIImpactFeedbackGenerator(style: .light)
+                        impactMed.impactOccurred()
                     } label: {
                         NiceButtonView(text: "Clear", icon: "trash.fill", bgColor: .orange)
                     }
                 }
                 Button {
                     used(state.assemble())
+                    let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                    impactMed.impactOccurred()
                 } label: {
                     NiceButtonView(text: "Assemble", icon: "play.fill", bgColor: .green)
                 }

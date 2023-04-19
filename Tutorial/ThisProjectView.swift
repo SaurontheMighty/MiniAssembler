@@ -13,11 +13,12 @@ struct ThisProjectView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 5) {
             VStack {
-                Spacer()
                 Text("This Project")
                     .bold()
                     .font(.title)
                     .foregroundColor(.deepPurple)
+                    .padding(.top, 22)
+
                 Spacer()
                 
                 Group {

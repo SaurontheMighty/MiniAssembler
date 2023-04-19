@@ -10,12 +10,11 @@ import SwiftUI
 struct WelcomeView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 5) {
-            Spacer()
             Text("Mini Assembly Interpreter")
                 .bold()
                 .font(.title)
                 .foregroundColor(.deepPurple)
-                .padding(.bottom, 16)
+                .padding(.top, 22)
             Spacer()
             
             Group {

@@ -18,6 +18,8 @@ struct Command: View {
             HStack(spacing: 0) {
                 Button {
                     send(command.name)
+                    let impactMed = UIImpactFeedbackGenerator(style: .soft)
+                    impactMed.impactOccurred()
                 } label: {
                     HStack(spacing: 0) {
                         Text(command.name)

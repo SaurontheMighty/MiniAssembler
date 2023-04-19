@@ -19,11 +19,11 @@ struct FirstLineView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 5) {
             VStack {
-                Spacer()
                 Text("Write Some Assembly!")
                     .bold()
                     .font(.title)
                     .foregroundColor(.deepPurple)
+                    .padding(.top, 22)
                 
                 Spacer()
                 
@@ -90,6 +90,8 @@ struct FirstLineView: View {
                 
             Button{
                 dismiss()
+                let impactMed = UIImpactFeedbackGenerator(style: .soft)
+                impactMed.impactOccurred()
             } label: {
                 Text("Open Interpreter")
                     .font(.system(size: 17))

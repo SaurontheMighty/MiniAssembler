@@ -11,11 +11,11 @@ struct WhatIsAssemblyView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 5) {
             VStack {
-                Spacer()
                 Text("What Is Assembly?")
                     .bold()
                     .font(.title)
                     .foregroundColor(.deepPurple)
+                    .padding(.top, 22)
                 Spacer()
                 
                     
