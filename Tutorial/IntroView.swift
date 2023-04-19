@@ -13,6 +13,7 @@ struct IntroView: View {
             WelcomeView()
             WhatIsAssemblyView()
             ThisProjectView()
+            FirstLineView()
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .background(Color(.systemGroupedBackground))

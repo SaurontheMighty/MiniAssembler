@@ -10,20 +10,23 @@ import Foundation
 class AssemblerState: ObservableObject {
     @Published var registers: [Int: Int] = [:]
     @Published var labels: [String: Int] = [:]
-    @Published var code: [CommandType] = [
-        add()
-    ]
+    @Published var code: [CommandType] = []
     @Published var assemblyError: String = ""
     @Published var stdout: String = ""
     @Published var deletedLines: Set<Int> = []
     
     init() {
         for val in 0..<32 {
-            registers[val] = 0
+            self.registers[val] = 0
         }
-
     }
     
+    convenience init(command: CommandType) {
+        self.init()
+        self.code.append(command)
+    }
+
+ 
     func assemble() -> [Int] {
         assemblyError = ""
         var usedRegistersSet: Set<Int> = []
@@ -33,7 +36,7 @@ class AssemblerState: ObservableObject {
         
         for (index, instruction) in code.enumerated() {
             print("\(index) \(instruction)")
-            if instruction.name == "label" {
+            if instruction.name == "label" && !deletedLines.contains(index) {
                 if instruction.args.count == 0 { // empty label
                     assemblyError = "Tried to execute instruction without completing definition"
                     return []
@@ -143,5 +146,4 @@ class AssemblerState: ObservableObject {
         let usedRegisters = Array(usedRegistersSet)
         return usedRegisters.sorted()
     }
-    
 }

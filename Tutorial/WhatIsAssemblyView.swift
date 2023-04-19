@@ -19,7 +19,7 @@ struct WhatIsAssemblyView: View {
                 Spacer()
                 
                     
-                BasicText(text: "It's still readable by humans but it can take much longer to write than your average programming language.")
+                BasicText(text: "Assembly is still readable by humans but it can take much longer to write than your average programming language.")
                 
                 Group {
                     Spacer()
@@ -33,7 +33,7 @@ struct WhatIsAssemblyView: View {
                 
                 Group {
                     
-                    BasicText(text: "When you hit run on your code in a high level programming language like Swift, Python or C++, the compiler optimizes it and translates it to assembly which is then assembled (converted to 1s and 0s).")
+                    BasicText(text: "When you hit run on your code in a high level programming language like Swift, the compiler optimizes it and translates it to assembly which is then assembled (converted to 1s and 0s).")
                 }
             }
             .padding(.horizontal, 15)
@@ -52,7 +52,8 @@ struct WhatIsAssemblyView: View {
             Swipe()
 
         }
-    }}
+    }
+}
 
 struct WhatIsAssemblyView_Previews: PreviewProvider {
     static var previews: some View {
@@ -62,7 +63,7 @@ struct WhatIsAssemblyView_Previews: PreviewProvider {
 }
 
 struct SimpleProgram: View {
-    @State private var command = add()
+    @State private var command: CommandType = add(args: ["5", "6", "7"])
     
     var body: some View {
         HStack(spacing: 0) {
@@ -70,7 +71,7 @@ struct SimpleProgram: View {
                 .bold()
                 .foregroundColor(.deepPurple)
             
-            Line(help: command.help, args: ["5", "6", "7"])
+            Line(command: command)
             
             Spacer()
         }

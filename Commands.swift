@@ -14,6 +14,10 @@ protocol CommandType {
     var help: [String] { get }
     var description: String { get }
     
+    init()
+    
+    init(args: [String])
+    
     func execute(registers: inout [Int: Int]) throws -> Bool
 }
 
@@ -34,6 +38,13 @@ class add: CommandType {
     var args: [String] = []
     let help = ["$target", "$a", "$b"]
     let description = "target = value of register a + value of register b"
+    
+    required init() {}
+    
+    required convenience init(args: [String]) {
+        self.init()
+        self.args = args
+    }
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
         if args == [] {
@@ -64,6 +75,13 @@ class sub: CommandType {
     var args: [String] = []
     let help = ["$target", "$a", "$b"]
     let description = "target = value of register a - value of register b"
+        
+    required init() {}
+    
+    required convenience init(args: [String]) {
+        self.init()
+        self.args = args
+    }
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
         if args == [] {
@@ -93,10 +111,26 @@ class li: CommandType {
     let arity = 2
     var args: [String] = []
     let help = ["$target", "value"]
-    let description = "target = value"
+    let description =
+    """
+        li: Load Immediate
+        Example: li $target, value
+        
+        Loads the value into the target register.
+    """
+    
+    required init() {}
+    
+    required convenience init(args: [String]) {
+        self.init()
+        self.args = args
+    }
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
-        if args.count != arity {
+        if args.count == 0 {
+            throw CommandError.incompleteDefinition
+        }
+        else if args.count != arity {
             throw CommandError.invalidArity
         }
         else if args[0] == "0" {
@@ -126,6 +160,13 @@ class label: CommandType {
         Once a label is added, you can simply type the label name in beq/bne and when the condition is met the interpreter will jump to where ever the label is.
     """
     
+    required init() {}
+    
+    required convenience init(args: [String]) {
+        self.init()
+        self.args = args
+    }
+    
     func execute(registers: inout [Int: Int]) throws -> Bool {
         guard let firstChar = args[0].first else { throw CommandError.invalidLabel }
         guard firstChar.isLetter || firstChar.isNumber else { throw CommandError.invalidLabel }
@@ -154,6 +195,13 @@ class beq: CommandType {
         SIMPLIFICATION: In 'real' MIPS the offset is the number of bytes to offset by (every instruction is 4 bytes so it would be a factor of 4) but here it is simplified to be number of lines
     """
     
+    required init() {}
+    
+    required convenience init(args: [String]) {
+        self.init()
+        self.args = args
+    }
+    
     func execute(registers: inout [Int: Int]) throws -> Bool {
         guard args.count == arity else {
             throw CommandError.invalidArity
@@ -177,9 +225,12 @@ class bne: CommandType {
     """
         BNE: Branch on Not Equal to
         Call: ($left, $right, skip)
+    
+        Skip can either be a label's name (in which case it would jump to where the label is) or it can be a number
         
         High Level Equivalent:
         if (left != right) {
+            if skip is a label: jump to the label
             if skip is positive: jump to (skip + 1) lines ahead
             if skip is negative: jump to (skip + 1) lines behind
         }
@@ -189,6 +240,13 @@ class bne: CommandType {
     
         SIMPLIFICATION: In 'real' MIPS the offset is the number of bytes to offset by (every instruction is 4 bytes so it would be a factor of 4) but here it is simplified to be number of lines
     """
+    
+    required init() {}
+    
+    required convenience init(args: [String]) {
+        self.init()
+        self.args = args
+    }
     
     func execute(registers: inout [Int: Int]) throws -> Bool {
         guard args.count == arity else {
@@ -206,7 +264,7 @@ class bne: CommandType {
 func validRegister(reg: String) -> Bool {
     let regi = Int(reg)
 
-    if regi != nil && regi! >= 0 && regi! < 28{
+    if regi != nil && regi! >= 0 && regi! < 32 {
         return true
     }
     return false

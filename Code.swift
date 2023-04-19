@@ -10,75 +10,99 @@ import Combine
 
 struct Code: View {
     @ObservedObject var state: AssemblerState
+    @State var hideClear: Bool
     let used: ([Int]) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(0..<state.code.count, id: \.self) { line in
-                var command = state.code[line]
                 HStack(spacing: 0) {
                     Group {
                         Text("\(line)")
                             .font(.system(size: 14, design: .monospaced))
                             .foregroundColor(.gray)
                             .padding(.trailing, 3)
-                        Text("\(command.name) ")
+                        Text("\(state.code[line].name) ")
                             .bold()
                             .foregroundColor(state.deletedLines.contains(line) ? .gray : .deepPurple)
                     }
                     
                     if(state.deletedLines.contains(line)) {
-                        DeletedLine(help: command.help, arity: command.arity)
+                        DeletedLine(help: state.code[line].help, arity: state.code[line].arity)
                     }
-                    else if command.args == [] {
-                        EmptyCommand(state: state, line: line, help: command.help)
+                    else if state.code[line].args == [] {
+                        EmptyCommand(state: state, line: line, help: state.code[line].help)
                     }
                     else {
-                        Line(help: command.help, args: command.args)
+                        HStack(spacing: 0) {
+                            ForEach(Array(state.code[line].args.enumerated()), id: \.offset) { index, arg in
+                                if state.code[line].help[index][0] == "$" {
+                                    Text("$")
+                                        .bold()
+                                        .foregroundColor(.darkOrange)
+                                }
+                                Text(arg)
+                                    .bold()
+                                    .foregroundColor(.darkOrange)
+                                if index < state.code[line].args.count - 1 {
+                                    Text(", ")
+                                }
+                            }
+                        }
                     }
-                    if command.name == "label" {
+                    if state.code[line].name == "label" {
                         Text(":")
                             .bold()
                             .foregroundColor(.darkOrange)
                     }
                     
-                    
-                    Spacer()
-                    
-                    Button {
-                        state.code[line].args = []
-                    } label: {
-                        Image(systemName: "pencil.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.blue)
-                            .opacity(state.deletedLines.contains(line) ? 0 : 1)
-                    }
-                    .padding(.trailing, 2)
-                    
-                    Button {
-                        if state.deletedLines.contains(line) {
-                            state.deletedLines.remove(line)
+                    Group {
+                        Spacer()
+                        
+                        Button {
+                            state.code[line].args = []
+                        } label: {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.blue)
+                                .opacity(state.deletedLines.contains(line) ? 0 : 1)
                         }
-                        else {
-                            state.deletedLines.insert(line)
+                        .padding(.trailing, 2)
+                        
+                        Button {
+                            if state.deletedLines.contains(line) {
+                                state.deletedLines.remove(line)
+                            }
+                            else {
+                                state.deletedLines.insert(line)
+                            }
+                        } label: {
+                            Image(systemName: state.deletedLines.contains(line) ? "arrowshape.turn.up.backward.circle.fill" : "x.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.red)
+                                
                         }
-                    } label: {
-                        Image(systemName: state.deletedLines.contains(line) ? "arrowshape.turn.up.backward.circle.fill" : "x.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.red)
-                            
+                        .padding(.trailing, 2)
                     }
-                    .padding(.trailing, 2)
                 }
-                
             }
             Spacer()
-            BottomBar(state: state, used: { usedRegs in
+            BottomBar(state: state, hideClear: hideClear, used: { usedRegs in
                 used(usedRegs)
             })
         }
     }
 }
+
+//struct CodeLine: View {
+//    @ObservedObject var state: AssemblerState
+//    @State var line: Int
+//
+//    var body: some View {
+//
+//
+//    }
+//}
 
 struct EmptyCommand: View {
     @ObservedObject var state: AssemblerState
@@ -180,7 +204,7 @@ struct Blank: View {
         else if filtered == "" {
             return false
         }
-        else if Int(filtered)! < 0 || Int(filtered)! > 29 {
+        else if Int(filtered)! < 0 || Int(filtered)! > 31 {
             return false
         }
         return true
@@ -188,10 +212,12 @@ struct Blank: View {
 }
 
 struct Line: View {
-    @State var help: [String]
-    @State var args: [String]
+    @State var command: CommandType
     
     var body: some View {
+        let args = command.args
+        let help = command.help
+        
         HStack(spacing: 0) {
             ForEach(Array(args.enumerated()), id: \.offset) { index, arg in
                 if help[index][0] == "$" {
@@ -234,6 +260,7 @@ struct DeletedLine: View {
 
 struct BottomBar: View {
     @ObservedObject var state: AssemblerState
+    @State var hideClear: Bool
     let used: ([Int]) -> Void
     
     var body: some View {
@@ -243,11 +270,13 @@ struct BottomBar: View {
                 .bold()
             Spacer()
             VStack(alignment: .trailing) {
-                Button {
-                    state.code = []
-                    state.deletedLines = []
-                } label: {
-                    NiceButtonView(text: "Clear", icon: "trash.fill", bgColor: .orange)
+                if !hideClear {
+                    Button {
+                        state.code = []
+                        state.deletedLines = []
+                    } label: {
+                        NiceButtonView(text: "Clear", icon: "trash.fill", bgColor: .orange)
+                    }
                 }
                 Button {
                     used(state.assemble())

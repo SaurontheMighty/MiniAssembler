@@ -11,7 +11,7 @@ struct WelcomeView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 5) {
             Spacer()
-            Text("Mini Assembler")
+            Text("Mini Assembly Interpreter")
                 .bold()
                 .font(.title)
                 .foregroundColor(.deepPurple)

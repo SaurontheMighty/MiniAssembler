@@ -1,13 +1,13 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var assemblerState: AssemblerState = AssemblerState()
+    @StateObject var assemblerState: AssemblerState = AssemblerState(command: add())
     @State var usedRegisters: [Int] = [0]
     @State var introShowing = true
         
     var body: some View {
         ScrollView {
-            Card(content: Code(state: assemblerState, used: { used in
+            Card(content: Code(state: assemblerState, hideClear: false, used: { used in
                 print(used)
                 usedRegisters = used
             }), title: "Mini Assembly", trailingTitle: "[MIPS]", minHeight: 300)
@@ -36,13 +36,24 @@ struct ContentView: View {
             .padding(.top, 5)
             .padding(.horizontal, 10)
             
-            HStack(spacing: 3) {
-                
-            }
-            .padding(.top, 5)
-            
             Card(content: Registers(state: assemblerState, usedRegisters: $usedRegisters), title: "Registers", minHeight: 0)
-//            Card(content: Help(), title: "Help", minHeight: 50)
+            
+            ChallengesView(state: assemblerState)
+
+            HStack {
+                VStack (alignment: .leading) {
+                    Text("Made by Ashish Selvaraj")
+                        .font(.system(size: 14, design: .monospaced))
+                    Text("Swift Student Challenge '23")
+                        .font(.system(size: 14, design: .monospaced))
+                }
+                Button {
+                    introShowing = true
+                } label: {
+                    NiceButtonView(text: "Re-launch Introduction", icon: "line.diagonal.arrow", bgColor: .black)
+                }
+            }
+            .padding(.vertical, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .sheet(isPresented: $introShowing) {
@@ -52,10 +63,61 @@ struct ContentView: View {
     }
 }
 
-struct Test: View {
+struct ChallengesView: View {
+    @ObservedObject var state: AssemblerState
+    
     var body: some View {
-        Text("Hi")
+        VStack (alignment: .leading) {
+            Text("Challenges")
+                .bold()
+                .foregroundColor(.deepPurple)
+            Challenge(state: state, text: "Create an infinite loop!", code: [
+                label(args: ["start"]),
+                beq(args: ["0", "0", "start"]),
+            ])
+            Challenge(state: state, text: "Set $15 to 0 and keep adding 1 in a loop until the value in $15 = 5", code: [
+                li(args: ["1", "1"]),
+                li(args: ["15", "0"]),
+                li(args: ["5", "5"]),
+                label(args: ["start"]),
+                beq(args: ["15", "5", "end"]),
+                add(args: ["15", "15", "1"]),
+                bne(args: ["15", "5", "start"]),
+                label(args: ["end"])
+            ])
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 10)
+        .padding(.horizontal, 10)
+    }
+}
 
+struct Challenge: View {
+    @ObservedObject var state: AssemblerState
+    @State var text: String
+    @State var code: [CommandType]
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack(spacing: 0) {
+                Text(text)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
+                Button {
+                    state.deletedLines = []
+                    state.code = code
+                } label: {
+                    NiceButtonView(text: "Solution", icon: "", bgColor: .blue)
+                }
+            }
+            Text("Tapping 'Solution' overwrites whatever you've already written!")
+                .font(.caption)
+                .foregroundColor(.red)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(CardBackground())
     }
 }
 

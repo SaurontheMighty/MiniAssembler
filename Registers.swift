@@ -12,7 +12,7 @@ struct Registers: View {
     @Binding var usedRegisters: [Int]
     
     var body: some View {
-        ScrollView {
+        ScrollView(.horizontal) {
             HStack {
                 ForEach(usedRegisters, id:\.self) { index in
                     HStack(spacing: 0) {

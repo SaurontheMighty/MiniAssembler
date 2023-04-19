@@ -12,44 +12,53 @@ struct ThisProjectView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 5) {
-            Spacer()
-            Text("This Project")
-                .bold()
-                .font(.title)
-                .foregroundColor(.deepPurple)
-            Spacer()
-            
-            Group {
-                BasicText(text: "This project allows you to write instructions with a small subset of MIPS assembly. Your assembly code is then interpreted, allowing you to see what it does.")
-                
-                BasicText(text: "Below is a visual respresentation of processor registers:")
-            }
-
-            Group {
+            VStack {
                 Spacer()
-                ScrollView(.horizontal) {
-                    HStack {
-                        Registers(state: AssemblerState(), usedRegisters: $registers)
-                    }
-                    .frame(height: 50)
+                Text("This Project")
+                    .bold()
+                    .font(.title)
+                    .foregroundColor(.deepPurple)
+                Spacer()
+                
+                Group {
+                    BasicText(text: "This project simulates the experience of writing assembly with a small subset of MIPS assembly instructions.\n")
+                    
+                    BasicText(text: "Below is a visual respresentation of processor registers: $name: value")
                 }
+
+                Group {
+                    Spacer()
+                    Card(content: Registers(state: AssemblerState(), usedRegisters: $registers), title: "Registers", minHeight: 0)
+                        .frame(height: 90)
+                    Spacer()
+                }
+
+                Group {
+                    BasicText(text: "Processors typically have registers that allow for small amounts of very fast storage. This project simulates a system with 32 registers. \n")
+                    
+                    BasicText(text: "Each register can store 4 bytes of information. This project restricts the values they can hold to numbers. \n")
+                    
+                    BasicText(text: "Now you're ready to write your first line of assembly! \n")
+                }
+            }
+            .padding(.horizontal, 15)
+
+            
+            Spacer()
+
+            HStack {
+                Image("almostthere")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180)
                 Spacer()
             }
-
-            Group {
-                BasicText(text: "Processors typically have registers that allow for small amounts of very fast storage. This project simulates a system with 32 registers. \n")
                 
-                BasicText(text: "Each register can store 4 bytes of information. This project restricts the values they can hold to numbers. \n")
-                
-                BasicText(text: "Now you're ready to write your first line of assembly! \n")
-            }
-            
             Spacer()
 
             Swipe()
 
         }
-        .padding(.horizontal, 15)
         .onAppear {
             for v in 0..<32 {
                 registers.append(v)

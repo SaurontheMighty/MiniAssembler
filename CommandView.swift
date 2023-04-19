@@ -51,6 +51,8 @@ struct Command: View {
             if help {
                 Text(command.description)
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(.vertical, 5)
